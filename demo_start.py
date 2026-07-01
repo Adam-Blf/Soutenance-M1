@@ -30,7 +30,14 @@ from pathlib import Path
 # --------------------------------------------------------------------------
 # Configuration des 3 projets
 # --------------------------------------------------------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent  # dossier parent de soutenance-m1
+_SCRIPT_DIR = Path(__file__).resolve().parent
+# Si demo_start.py est dans soutenance-m1/ (structure repo), on cherche les projets
+# dans le dossier parent. Sinon (distribution standalone : script + pptx dans un
+# meme dossier quelconque), on cree un sous-dossier "projets/" a cote du script.
+if (_SCRIPT_DIR / "scripts").exists() or (_SCRIPT_DIR / "assets").exists():
+    BASE_DIR = _SCRIPT_DIR.parent  # mode repo : ../urban-data-explorer etc.
+else:
+    BASE_DIR = _SCRIPT_DIR / "projets"  # mode standalone : ./projets/
 
 PROJECTS = {
     "urban": {
