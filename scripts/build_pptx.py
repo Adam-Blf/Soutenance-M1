@@ -63,6 +63,13 @@ REPOS = {
 }
 DEMO_URBAN = "https://urban.beloucif.com"
 
+# Launchers locaux : executent les projets en 1 clic depuis le PPTX
+# Chaque .pyw affiche un dialog friendly puis lance l'app dans une console
+_LAUNCH = ROOT / "assets" / "launch"
+LAUNCH_UDE    = "file:///" + str(_LAUNCH / "ude_launch.pyw").replace("\\", "/")
+LAUNCH_MPI    = "file:///" + str(_LAUNCH / "mpi_launch.pyw").replace("\\", "/")
+LAUNCH_IAPERO = "file:///" + str(_LAUNCH / "iapero_launch.pyw").replace("\\", "/")
+
 SW, SH   = 13.333, 7.5
 EMU_IN   = 914400
 
@@ -203,6 +210,15 @@ def button(s, text, url, l, t, w=2.7, h=0.5, fill=EFREI_NAVY, fg=WHITE):
     sp = rect(s, l, t, w, h, fill=fill,
               shape=MSO_SHAPE.ROUNDED_RECTANGLE, round_=0.3)
     shape_text(sp, text, size=11.5, color=fg, bold=True)
+    sp.click_action.hyperlink.address = url
+    return sp
+
+
+def demo_btn(s, url, l=9.52, t=1.26, w=3.28, h=0.48):
+    """Bouton DEMO cliquable : ouvre toutes les pages du projet en 1 clic."""
+    sp = rect(s, l, t, w, h, fill=EFREI_PINK,
+              shape=MSO_SHAPE.ROUNDED_RECTANGLE, round_=0.3)
+    shape_text(sp, "DEMO  -  TOUT LANCER", size=12, color=WHITE)
     sp.click_action.hyperlink.address = url
     return sp
 
@@ -398,6 +414,7 @@ image_fit(s, SCREENS / "ude-light.png", 6.7, 1.5, 6.15, 4.35, border=True)
 caption(s, "Dashboard Urban Data Explorer  -  choroplethe prix m2", 6.7, 5.9, 6.15)
 button(s, "Demo live ->", DEMO_URBAN, 0.52, 6.4, w=2.4, h=0.5, fill=P1)
 button(s, "Repo ->", REPOS["urban"], 3.1, 6.4, w=2.0, h=0.5, fill=EFREI_DARK)
+demo_btn(s, LAUNCH_UDE)
 footer(s, 5)
 
 # ============================================================
@@ -428,6 +445,7 @@ bullets(s, [
     "Adapte aux evenements semi-structures a forte velocite",
     "PG aurait impose un schema rigide + purges manuelles",
 ], 7.06, 2.58, 5.5, 3.3, size=12.5, gap=7, bullet_color=P2)
+demo_btn(s, LAUNCH_UDE)
 footer(s, 6)
 
 # ============================================================
@@ -451,6 +469,7 @@ bullets(s, [
 image_fit(s, SCREENS / "infrastructures_stacked_bar.png", 6.88, 1.9, 5.9, 3.0, border=True)
 image_fit(s, SCREENS / "geocoding_integrity.png",         6.88, 5.05, 5.9, 1.62, border=True)
 caption(s, "Repartition des sources + integrite du geocodage", 6.88, 6.7, 5.9)
+demo_btn(s, LAUNCH_UDE)
 footer(s, 7)
 
 # ============================================================
@@ -459,9 +478,7 @@ footer(s, 7)
 s = slide(); bg(s, WHITE)
 header(s, "Projet 1  |  Urban Data Explorer", "API & securite", P1)
 badge(s, "C2.1", "API securisee", 0.52, 1.3, fill=P1)
-sp_d1 = rect(s, 9.52, 1.26, 3.28, 0.48, fill=EFREI_PINK,
-             shape=MSO_SHAPE.ROUNDED_RECTANGLE, round_=0.3)
-shape_text(sp_d1, "DEMO LIVE  -  90 s", size=12.5, color=WHITE)
+demo_btn(s, LAUNCH_UDE)
 bullets(s, [
     ("JWT HS256  ",
      "secret en variable d'env (jamais commite), roles viewer / admin."),
@@ -506,6 +523,7 @@ textbox(s, "Limites assumees & roadmap", 0.78, 4.88, 11, 0.38,
 textbox(s, "Demo mono-noeud (replication_factor 1), pas de HA reelle. "
            "Chemin documente vers cluster 3 noeuds + replication Cassandra + API stateless replicable.",
         0.78, 5.3, 11.82, 1.0, size=13.5, color=TEXT_DARK, line_spacing=1.12)
+demo_btn(s, LAUNCH_UDE)
 footer(s, 9)
 
 # ============================================================
@@ -535,6 +553,7 @@ bullets(s, [
 ], 8.26, 2.58, 4.4, 3.0, size=13, gap=10, bullet_color=P2)
 textbox(s, "Cout corrective ~100 EUR/h  ->  predictive ~20 EUR/h",
         0.52, 5.38, 7, 0.4, size=14, color=P2, bold=True, font=FONT_H)
+demo_btn(s, LAUNCH_MPI)
 footer(s, 10)
 
 # ============================================================
@@ -559,6 +578,7 @@ bullets(s, [
 ], 0.52, 1.9, 6.12, 4.05, size=14, gap=8, bullet_color=P2)
 image_fit(s, SCREENS / "correlation_matrix.png", 6.88, 1.9, 5.9, 4.55, border=True)
 caption(s, "Matrice de correlation des variables capteurs", 6.88, 6.5, 5.9)
+demo_btn(s, LAUNCH_MPI)
 footer(s, 11)
 
 # ============================================================
@@ -600,6 +620,7 @@ bullets(s, [
     ("CV 5-fold  ",
      "XGBoost F1=0.886+/-0.011 stable, selection score = F1 - 0.5xsigma(CV)."),
 ], 0.52, 5.22, 12.25, 1.75, size=12.5, gap=6, bullet_color=P2)
+demo_btn(s, LAUNCH_MPI)
 footer(s, 12)
 
 # ============================================================
@@ -608,9 +629,7 @@ footer(s, 12)
 s = slide(); bg(s, WHITE)
 header(s, "Projet 2  |  Maintenance Predictive", "Dashboard decisionnel", P2)
 badge(s, "C3.2", "Dashboard interactif", 0.52, 1.3, fill=P2)
-sp_d2 = rect(s, 9.52, 1.26, 3.28, 0.48, fill=EFREI_PINK,
-             shape=MSO_SHAPE.ROUNDED_RECTANGLE, round_=0.3)
-shape_text(sp_d2, "DEMO LIVE  -  90 s", size=12.5, color=WHITE)
+demo_btn(s, LAUNCH_MPI)
 bullets(s, [
     ("Cible  ",      "responsable maintenance, pas le data scientist."),
     ("Simulation  ", "sliders capteurs -> prediction temps reel + probabilite."),
@@ -649,6 +668,7 @@ bullets(s, [
     "Calibration des probabilites",
     "Tuning des hyperparametres justifie",
 ], 7.06, 2.2, 5.5, 3.75, size=13.5, gap=12, bullet_color=P2)
+demo_btn(s, LAUNCH_MPI)
 footer(s, 14)
 
 # ============================================================
@@ -669,6 +689,7 @@ textbox(s, "Requete -> guardrail SBERT cosinus 0.40 (calibre 30 requetes) -> cac
         0.52, 5.52, 6.2, 0.78, size=13, color=TEXT_DARK, italic=True)
 image_fit(s, SCREENS / "iapero-speakeasy-live.png", 6.88, 1.9, 5.9, 4.38, border=True)
 caption(s, "Interface Speakeasy de L'IA Pero", 6.88, 6.32, 5.9)
+demo_btn(s, LAUNCH_IAPERO)
 footer(s, 15)
 
 # ============================================================
@@ -677,9 +698,7 @@ footer(s, 15)
 s = slide(); bg(s, WHITE)
 header(s, "Projet 3  |  L'IA Pero", "Solution & demonstration", P3)
 badge(s, "C5.2", "Solution GenAI", 0.52, 1.3, fill=EFREI_NAVY)
-sp_d3 = rect(s, 9.52, 1.26, 3.28, 0.48, fill=EFREI_PINK,
-             shape=MSO_SHAPE.ROUNDED_RECTANGLE, round_=0.3)
-shape_text(sp_d3, "DEMO LIVE  -  90 s", size=12.5, color=WHITE)
+demo_btn(s, LAUNCH_IAPERO)
 bullets(s, [
     ("SBERT all-MiniLM-L6-v2  ",
      "local, 80 MB, 384 dims. Choix vs TF-IDF : capture la semantique (« frais et fruite » trouve rhum-agrumes, TF-IDF echoue). CPU-only, adapte au domaine clos 600 cocktails."),
@@ -722,6 +741,7 @@ textbox(s, "Hallucination (mitigee RAG+cache)  |  requetes FR : -15% perf vs EN 
         0.76, 5.65, 5.7, 0.98, size=12, color=TEXT_DARK, line_spacing=1.12)
 image_fit(s, SCREENS / "iapero-similarity-live.png", 6.88, 1.9, 5.9, 4.52, border=True)
 caption(s, "Scores de similarite + decision du guardrail", 6.88, 6.48, 5.9)
+demo_btn(s, LAUNCH_IAPERO)
 footer(s, 17)
 
 # ============================================================

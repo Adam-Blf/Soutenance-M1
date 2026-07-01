@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Maintenance Predictive - Lancement demo</title>
+  <style>
+    body { font-family: sans-serif; background: #051832; color: #fff; display: flex;
+           align-items: center; justify-content: center; height: 100vh; margin: 0; flex-direction: column; gap: 16px; }
+    h2 { color: #0C78B4; margin: 0; }
+    p { color: #aaa; margin: 0; }
+  </style>
+</head>
+<body>
+  <h2>Maintenance Predictive Industrielle</h2>
+  <p>Ouverture du dashboard Streamlit...</p>
+  <script>
+    var pages = [
+      "http://localhost:8502"
+    ];
+    pages.forEach(function(url) { window.open(url, "_blank"); });
+  </script>
+</body>
+</html>
