@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>IA Pero - Lancement demo</title>
+  <style>
+    body { font-family: sans-serif; background: #051832; color: #fff; display: flex;
+           align-items: center; justify-content: center; height: 100vh; margin: 0; flex-direction: column; gap: 16px; }
+    h2 { color: #FF43B8; margin: 0; }
+    p { color: #aaa; margin: 0; }
+  </style>
+</head>
+<body>
+  <h2>L'IA Pero - Speakeasy</h2>
+  <p>Ouverture de l'application Streamlit...</p>
+  <script>
+    var pages = [
+      "http://localhost:8503",
+      "http://localhost:8503/?page=demo"
+    ];
+    pages.forEach(function(url) { window.open(url, "_blank"); });
+  </script>
+</body>
+</html>
