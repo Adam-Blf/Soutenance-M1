@@ -311,15 +311,15 @@ header(s, "Introduction", "Vue d'ensemble des 3 projets")
 cards = [
     ("Urban Data Explorer", "Bloc 1  |  C1.1 - C2.4",
      "Plateforme data du logement parisien. 24 sources Open Data, architecture medaillon, "
-     "PostgreSQL etoile, Cassandra, Kafka, API FastAPI securisee, dashboard MapLibre.",
+     "PostgreSQL datamarts Gold, Cassandra, Kafka, API FastAPI securisee, dashboard MapLibre.",
      "urban", P1),
     ("Maintenance Predictive", "Bloc 2  |  C3.1 - C4.3",
      "Prediction de panne machine sous 24 h depuis capteurs IoT. 4 modeles (dont Deep Learning), "
      "mesure CO2 CodeCarbon, dashboard decisionnel Streamlit.",
      "maint", P2),
     ("L'IA Pero", "Bloc 2  |  C5.1 - C5.3",
-     "Recommandation de cocktails par IA semantique. SBERT 384 dims, guardrail cosinus 0.35, "
-     "RAG + Gemini avec cache SQLite, interface Streamlit Speakeasy.",
+     "Recommandation de cocktails par IA semantique. 612 cocktails, SBERT 384 dims, guardrail 0.40 (F1=0.92), "
+     "RAG + GPT-2 fine-tune, cache JSON MD5, interface Streamlit MixCraft.",
      "iapero", P3),
 ]
 y = 1.45
@@ -387,7 +387,7 @@ bullets(s, [
     ("Architecture medaillon  ",
      "Bronze (brut Parquet) -> Silver (normalise, geocode) -> Gold (datamarts)."),
     ("Stockage dual  ",
-     "PostgreSQL en etoile pour l'analytique, Cassandra query-first pour le streaming."),
+     "PostgreSQL Gold datamarts (schema applatit oriente requetes), Cassandra query-first pour le streaming."),
     ("Exposition  ",
      "API FastAPI securisee -> dashboard React / MapLibre."),
 ], 0.52, 1.45, 5.9, 4.2, size=14, gap=10, bullet_color=EFREI_PINK)
@@ -405,10 +405,10 @@ header(s, "Projet 1  |  Urban Data Explorer", "Bases de donnees  SQL vs NoSQL", 
 badges_row(s, [("C1.1", "Relationnelle"), ("C1.2", "NoSQL")], 0.52, 1.3, fill=P1)
 rect(s, 0.52, 1.95, 6.02, 4.22, fill=OFF_WHITE, line=RULE)
 rect(s, 0.52, 1.95, 6.02, 0.5, fill=P1)
-textbox(s, "PostgreSQL  -  schema en etoile", 0.72, 2.02, 5.6, 0.36,
+textbox(s, "PostgreSQL  -  Architecture medaillon Gold", 0.72, 2.02, 5.6, 0.36,
         size=14.5, color=WHITE, bold=True, font=FONT_H)
 bullets(s, [
-    "Fait + dimensions (arrondissement, temps), FK et cles composees",
+    "Datamarts Gold aplatis, indexes sur arrondissement et mois",
     "Index sur axes de requete -> p95 < 4 ms en jointure",
     "Contraintes NOT NULL / integrite referentielle",
     "Test de charge : scripts/test_load_postgres.py",
@@ -662,7 +662,7 @@ bullets(s, [
 ], 0.52, 1.9, 6.12, 3.22, size=14, gap=9, bullet_color=EFREI_PINK)
 textbox(s, "Pipeline", 0.52, 5.2, 6, 0.32,
         size=14, color=P3, bold=True, font=FONT_H)
-textbox(s, "Questionnaire -> SBERT -> cosinus -> guardrail 0.35 -> cache -> Gemini (RAG)",
+textbox(s, "Requete -> SBERT all-MiniLM-L6-v2 -> cosinus -> guardrail 0.40 -> cache JSON MD5 -> GPT-2 fine-tune (RAG)",
         0.52, 5.52, 6.2, 0.78, size=13, color=TEXT_DARK, italic=True)
 image_fit(s, SCREENS / "iapero-speakeasy-live.png", 6.88, 1.9, 5.9, 4.38, border=True)
 caption(s, "Interface Speakeasy de L'IA Pero", 6.88, 6.32, 5.9)
@@ -679,16 +679,16 @@ sp_d3 = rect(s, 9.52, 1.26, 3.28, 0.48, fill=EFREI_PINK,
 shape_text(sp_d3, "DEMO LIVE  -  90 s", size=12.5, color=WHITE)
 bullets(s, [
     ("SBERT all-MiniLM-L6-v2  ",
-     "local, gratuit, 384 dims, suffisant pour des phrases courtes."),
-    ("Gemini free-tier  ",
-     "generation uniquement, bornee par le contexte RAG."),
-    ("Cache SQLite MD5  ",
-     "1 appel API par generation -> conforme a la contrainte free-tier."),
+     "local, 80 MB, 384 dims, L2-normalise. P@5=0.79 vs TF-IDF 0.41 (+93%). CPU-only, adapte au domaine clos."),
+    ("GPT-2 fine-tune  ",
+     "117M params, 3 epochs, LR=5e-5 sur 612 recettes. BLEU-4=0.42, ROUGE-L=0.58. Generation bornee par le contexte RAG."),
+    ("Cache JSON MD5  ",
+     "1 calcul par requete unique. Latence cache hit < 10 ms vs 2.1 s premier appel."),
     ("Guardrail  ",
-     "similarite < 0.35 -> refus automatique des requetes hors-domaine."),
+     "seuil 0.40 (calibre sur 30 requetes labelisees). F1=0.92, Precision=0.95, Recall=0.90."),
 ], 0.52, 1.92, 6.02, 3.3, size=13.5, gap=8, bullet_color=EFREI_PINK)
 textbox(s, "Scenario : « quelque chose de frais et fruite » -> Top-5 + radar ; "
-           "« repare mon velo » -> refus guardrail.",
+           "« repare mon velo » -> refus (score 0.23 < 0.40).",
         0.52, 5.3, 6.12, 0.88, size=12, color=TEXT_MUTED, italic=True)
 image_fit(s, SCREENS / "iapero-recommendation-full.png", 6.88, 1.9, 5.9, 4.05, border=True)
 button(s, "Ouvrir le repo ->", REPOS["iapero"], 6.88, 6.15, w=5.9, h=0.5, fill=P3)
@@ -701,21 +701,21 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 3  |  L'IA Pero", "Evaluation & risques", P3)
 badge(s, "C5.3", "Evaluation qualite", 0.52, 1.3, fill=EFREI_NAVY)
 bullets(s, [
-    ("Guardrail teste  ",
-     "seuil 0.35 sur jeux de requetes hors-domaine documentes."),
-    ("Tableau  ",
-     "requete -> attendu -> score de similarite -> decision."),
-    ("Ajustements  ",
-     "seuil, Top-N, temperature Gemini, structure du prompt RAG."),
-    ("Objectif tenu  ",
-     "reponse < 3 s avec cache, < 8 s premier appel Gemini."),
+    ("Guardrail F1=0.92  ",
+     "seuil 0.40, Precision=0.95, Recall=0.90. 94% des requetes hors-domaine rejetees (30 cas testes)."),
+    ("Retrieval P@5=0.79  ",
+     "NDCG@5=0.81. Gain +93% vs TF-IDF baseline (0.41). Latence : 45 ms retrieval, < 10 ms cache hit."),
+    ("Generation BLEU-4=0.42  ",
+     "ROUGE-L=0.58. Coherent avec la litterature recettes (0.35-0.55 typique). 62 tests pytest."),
+    ("Pistes d'amelioration  ",
+     "FAISS persistant pour scale 100k+, fine-tuning SBERT domaine, LaBSE/XLM-R pour FR/EN/ES natif."),
 ], 0.52, 1.9, 6.12, 3.22, size=14, gap=9, bullet_color=EFREI_PINK)
 rect(s, 0.52, 5.18, 6.12, 1.55,
      fill=RGBColor(0xFF, 0xF0, 0xF8), line=EFREI_PINK)
 textbox(s, "Risques", 0.76, 5.3, 5, 0.32,
         size=13.5, color=EFREI_PINK, bold=True, font=FONT_H)
-textbox(s, "Hallucination (mitigee RAG+cache)  |  dependance API (fallback+cache)  |  "
-           "biais dataset  |  usage responsable de l'alcool.",
+textbox(s, "Hallucination (mitigee RAG+cache)  |  requetes FR : -15% perf vs EN  |  "
+           "biais dataset anglophone  |  usage responsable de l'alcool.",
         0.76, 5.65, 5.7, 0.98, size=12, color=TEXT_DARK, line_spacing=1.12)
 image_fit(s, SCREENS / "iapero-similarity-live.png", 6.88, 1.9, 5.9, 4.52, border=True)
 caption(s, "Scores de similarite + decision du guardrail", 6.88, 6.48, 5.9)
@@ -727,7 +727,7 @@ footer(s, 17)
 s = slide(); bg(s, WHITE)
 header(s, "Conclusion", "Synthese : competences -> preuves")
 comps = [
-    ("C1.1","Schema etoile PG"),    ("C1.2","Cassandra query-first"),
+    ("C1.1","Medaillon Gold PG"),    ("C1.2","Cassandra query-first"),
     ("C1.3","Medaillon Parquet"),   ("C1.4","Resilience testee"),
     ("C2.1","API JWT + quotas"),    ("C2.2","Kafka + micro-batch"),
     ("C2.3","Polars multi-sources"),("C2.4","Metriques pipeline"),
@@ -735,7 +735,7 @@ comps = [
     ("C3.3","EDA correlations"),    ("C4.1","Strategie predictive"),
     ("C4.2","4 modeles testes"),    ("C4.3","Eval + CO2"),
     ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG Gemini"),
-    ("C5.3","Guardrail 0.35"),
+    ("C5.3","Guardrail 0.40 F1=0.92"),
 ]
 cols = 4; cw_c = 3.05; chh = 0.92; gx = 0.12; gy = 0.14
 x0, y0 = 0.52, 1.48
