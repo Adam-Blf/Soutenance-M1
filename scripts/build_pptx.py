@@ -310,16 +310,16 @@ s = slide(); bg(s, WHITE)
 header(s, "Introduction", "Vue d'ensemble des 3 projets")
 cards = [
     ("Urban Data Explorer", "Bloc 1  |  C1.1 - C2.4",
-     "Plateforme data du logement parisien. 24 sources Open Data, architecture medaillon, "
+     "Plateforme data du logement parisien. 82 sources Open Data (4 familles), architecture medaillon, "
      "PostgreSQL datamarts Gold, Cassandra, Kafka, API FastAPI securisee, dashboard MapLibre.",
      "urban", P1),
     ("Maintenance Predictive", "Bloc 2  |  C3.1 - C4.3",
      "Prediction de panne machine sous 24 h depuis capteurs IoT. 4 modeles (dont Deep Learning), "
-     "mesure CO2 CodeCarbon, dashboard decisionnel Streamlit.",
+     "XGBoost retenu F1=0.886 ROC-AUC=0.995, dashboard decisionnel Streamlit.",
      "maint", P2),
     ("L'IA Pero", "Bloc 2  |  C5.1 - C5.3",
-     "Recommandation de cocktails par IA semantique. 612 cocktails, SBERT 384 dims, guardrail 0.40 (F1=0.92), "
-     "RAG + GPT-2 fine-tune, cache JSON MD5, interface Streamlit MixCraft.",
+     "Recommandation de cocktails par IA semantique. 447 cocktails, SBERT all-MiniLM-L6-v2 384 dims, "
+     "guardrail cosinus 0.40 (calibre 30 requetes), RAG + GPT-2 fine-tune, cache JSON MD5.",
      "iapero", P3),
 ]
 y = 1.45
@@ -347,12 +347,12 @@ rows = [
     ("Projet", "Adam Beloucif", "Emilien Morice"),
     ("Urban Data Explorer",
      "Architecture data, API securisee, modele PG/Cassandra, pipeline",
-     "Sourcing & qualite 24 sources, front cartographique, data prep"),
+     "Sourcing & qualite 82 sources, front cartographique, data prep"),
     ("Maintenance Predictive",
      "Modelisation 4 modeles, selection XGBoost, dashboard Streamlit",
      "EDA, preparation donnees, analyse des correlations"),
     ("L'IA Pero",
-     "Backend RAG/SBERT, guardrail semantique, cache SQLite, evaluation",
+     "Backend RAG/SBERT, guardrail semantique, cache JSON MD5, evaluation",
      "Referentiel cocktails, scenarios d'usage, tests des seuils"),
 ]
 col_x = [0.52, 3.42, 8.12]
@@ -383,7 +383,7 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 1  |  Urban Data Explorer", "Besoin & architecture", P1)
 bullets(s, [
     ("Besoin metier  ",
-     "explorer le marche du logement parisien en croisant 24 sources Open Data heterogenes."),
+     "explorer le marche du logement parisien en croisant 82 sources Open Data (4 familles) heterogenes."),
     ("Architecture medaillon  ",
      "Bronze (brut Parquet) -> Silver (normalise, geocode) -> Gold (datamarts)."),
     ("Stockage dual  ",
@@ -434,8 +434,8 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 1  |  Urban Data Explorer", "Data Lake & streaming temps reel", P1)
 badges_row(s, [("C1.3", "Data Lake"), ("C2.2", "Streaming")], 0.52, 1.3, fill=P1)
 bullets(s, [
-    ("24 sources / 8 familles  ",
-     "CSV, GeoJSON, API -> atterrissage Bronze en Parquet."),
+    ("82 sources / 4 familles  ",
+     "mobilite (17), vie_quotidienne (42), environnement (11), logement (12) -> Bronze Parquet."),
     ("Silver  ",
      "normalisation des codes, geocodage point-in-polygon IRIS."),
     ("Gold  ",
@@ -565,14 +565,14 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 2  |  Maintenance Predictive", "Modeles & evaluation comparative", P2)
 badges_row(s, [("C4.2", "Modeles"), ("C4.3", "Eval + ecoresponsabilite")], 0.52, 1.3, fill=P2)
 data = [
-    ["Modele",             "F1",    "ROC-AUC", "Temps", "CO2"],
-    ["LogReg (baseline)",  "0.865", "0.914",   "3.2 s", "0.3 mg"],
-    ["Random Forest",      "0.910", "0.952",   "45 s",  "8.2 mg"],
-    ["XGBoost (retenu)",   "0.928", "0.964",   "35 s",  "6.1 mg"],
-    ["MLP 64-32-16 (DL)",  "0.896", "0.936",   "18 s",  "3.8 mg"],
+    ["Modele",             "F1",    "ROC-AUC", "CV F1 (5-fold)", "Fit time"],
+    ["LogReg (baseline)",  "0.747", "0.959",   "0.750 +/-0.008", "0.06 s"],
+    ["Random Forest",      "0.863", "0.992",   "0.844 +/-0.009", "0.89 s"],
+    ["XGBoost (retenu)",   "0.886", "0.995",   "0.886 +/-0.011", "0.50 s"],
+    ["MLP 64-32-16 (DL)",  "0.836", "0.984",   "0.795 +/-0.010", "2.36 s"],
 ]
-cx = [0.52, 4.52, 6.12, 8.02, 9.62]
-cw = [4.0, 1.6, 1.9, 1.6, 1.7]
+cx = [0.52, 4.52, 6.12, 7.82, 10.52]
+cw = [4.0, 1.6, 1.7, 2.7, 1.58]
 ty = 1.96; rh = 0.6
 for ri, row in enumerate(data):
     retained = ri == 3
@@ -594,8 +594,8 @@ bullets(s, [
      "score = F1 - 0.5 x sigma(F1 en cross-val) -> performance ET stabilite."),
     ("Anti-leakage  ",
      "pipeline sklearn fit sur train uniquement (ADR dedie)."),
-    ("Ecoresponsabilite  ",
-     "CodeCarbon : XGBoost 6.1 mg < RF 8.2 mg pour de meilleures perfs."),
+    ("CV 5-fold  ",
+     "XGBoost F1=0.886+/-0.011 stable, selection score = F1 - 0.5xsigma(CV)."),
 ], 0.52, 5.22, 12.25, 1.75, size=12.5, gap=6, bullet_color=P2)
 footer(s, 12)
 
@@ -681,7 +681,7 @@ bullets(s, [
     ("SBERT all-MiniLM-L6-v2  ",
      "local, 80 MB, 384 dims, L2-normalise. P@5=0.79 vs TF-IDF 0.41 (+93%). CPU-only, adapte au domaine clos."),
     ("GPT-2 fine-tune  ",
-     "117M params, 3 epochs, LR=5e-5 sur 612 recettes. BLEU-4=0.42, ROUGE-L=0.58. Generation bornee par le contexte RAG."),
+     "117M params, 3 epochs, LR=5e-5 sur 447 recettes. BLEU-4=0.42, ROUGE-L=0.58. Generation bornee par le contexte RAG."),
     ("Cache JSON MD5  ",
      "1 calcul par requete unique. Latence cache hit < 10 ms vs 2.1 s premier appel."),
     ("Guardrail  ",
@@ -733,8 +733,8 @@ comps = [
     ("C2.3","Polars multi-sources"),("C2.4","Metriques pipeline"),
     ("C3.1","Prep fit-train"),      ("C3.2","Dashboard Streamlit"),
     ("C3.3","EDA correlations"),    ("C4.1","Strategie predictive"),
-    ("C4.2","4 modeles testes"),    ("C4.3","Eval + CO2"),
-    ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG Gemini"),
+    ("C4.2","4 modeles testes"),    ("C4.3","Eval XGBoost F1=0.886"),
+    ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG GPT-2"),
     ("C5.3","Guardrail 0.40 F1=0.92"),
 ]
 cols = 4; cw_c = 3.05; chh = 0.92; gx = 0.12; gy = 0.14
