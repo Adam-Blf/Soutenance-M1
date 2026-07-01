@@ -5,10 +5,15 @@ Demo launcher - Soutenance M1 RNCP40875.
 Telecharge (git clone / git pull) un projet depuis GitHub,
 installe les dependances, puis lance l'application.
 
+Ports (aucun conflit) :
+    Urban Data Explorer  - API 8000  / front 5173
+    Maintenance Predict. - API 8001  / Streamlit 8502
+    L'IA Pero            - Streamlit 8503
+
 Usage:
-    python demo_start.py urban        # Urban Data Explorer (port 8000 API + 5173 front)
-    python demo_start.py maintenance  # Maintenance Predictive (port 8000 API + 8501 Streamlit)
-    python demo_start.py iapero       # L'IA Pero (port 8503 Streamlit)
+    python demo_start.py urban        # Urban Data Explorer
+    python demo_start.py maintenance  # Maintenance Predictive
+    python demo_start.py iapero       # L'IA Pero
     python demo_start.py all          # Lance les 3 en parallele
 
 Sans argument : menu interactif.
@@ -47,8 +52,10 @@ PROJECTS = {
         "requirements": "requirements.txt",
         "steps": "python_app",
         "app_cmd": [sys.executable, "app.py"],
-        "urls": ["http://127.0.0.1:8000/docs", "http://localhost:8501"],
-        "port_check": 8501,
+        # env vars lus par app.py : MPI_API_PORT + MPI_DASH_PORT
+        "app_env": {"MPI_API_PORT": "8001", "MPI_DASH_PORT": "8502"},
+        "urls": ["http://127.0.0.1:8001/docs", "http://localhost:8502"],
+        "port_check": 8502,
     },
     "iapero": {
         "name": "L'IA Pero",
@@ -147,8 +154,11 @@ def launch_urban(proj: dict) -> list[subprocess.Popen]:
 def launch_python_app(proj: dict) -> list[subprocess.Popen]:
     """Projects with their own orchestrator app.py (maintenance)."""
     d: Path = proj["dir"]
+    env = os.environ.copy()
+    env.update(proj.get("app_env", {}))
     print(f"  Starting {proj['name']} (python app.py)...")
-    proc = subprocess.Popen(proj["app_cmd"], cwd=d)
+    print(f"  Ports: API {env.get('MPI_API_PORT', 8001)}  Streamlit {env.get('MPI_DASH_PORT', 8502)}")
+    proc = subprocess.Popen(proj["app_cmd"], cwd=d, env=env)
     return [proc]
 
 
