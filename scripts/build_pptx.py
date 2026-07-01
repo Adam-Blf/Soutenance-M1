@@ -551,6 +551,8 @@ bullets(s, [
      "vibration_rms et temperature_motor : variables les plus correlees a la panne."),
     ("Coherence physique  ",
      "l'usure mecanique genere vibration ET echauffement simultanement."),
+    ("EDA  ",
+     "6 etapes : distributions, boxplots outliers, heatmap correlations, desequilibre 88/12 %, scatter vibration x temperature, tendances temporelles."),
 ], 0.52, 1.9, 6.12, 4.05, size=14, gap=8, bullet_color=P2)
 image_fit(s, SCREENS / "correlation_matrix.png", 6.88, 1.9, 5.9, 4.55, border=True)
 caption(s, "Matrice de correlation des variables capteurs", 6.88, 6.5, 5.9)
