@@ -329,16 +329,16 @@ s = slide(); bg(s, WHITE)
 header(s, "Introduction", "Vue d'ensemble des 3 projets")
 cards = [
     ("Urban Data Explorer", "Bloc 1  |  C1.1 - C2.4",
-     "Plateforme data du logement parisien. 82 sources Open Data (4 familles), architecture medaillon, "
-     "PostgreSQL datamarts Gold, Cassandra, Kafka, API FastAPI securisee, dashboard MapLibre.",
+     "Exploration du marche immobilier parisien : 82 sources publiques collectees, nettoyees "
+     "et visualisees sur une carte interactive. Chaque arrondissement analysable en temps reel.",
      "urban", P1),
     ("Maintenance Predictive", "Bloc 2  |  C3.1 - C4.3",
-     "Prediction de panne machine sous 24 h depuis capteurs IoT. 4 modeles (dont Deep Learning), "
-     "XGBoost retenu F1=0.886 ROC-AUC=0.995, dashboard decisionnel Streamlit.",
+     "Anticiper les pannes de machines industrielles avant qu'elles surviennent. L'IA detecte "
+     "9 pannes sur 10 avec 24h d'avance. Passer de 100 EUR/h corrective a 20 EUR/h preventive.",
      "maint", P2),
     ("L'IA Pero", "Bloc 2  |  C5.1 - C5.3",
-     "Recommandation de cocktails par IA semantique. 1280 cocktails (4 sources fusionnees), SBERT all-MiniLM-L6-v2 384 dims, "
-     "guardrail cosinus 0.40 (calibre 30 requetes), RAG + GPT-2 fine-tune, cache JSON MD5.",
+     "Dites « quelque chose de frais » et l'IA recommande un cocktail et cree la recette. "
+     "1280 cocktails, comprehension du langage naturel, refus automatique des requetes hors-sujet.",
      "iapero", P3),
 ]
 y = 1.45
@@ -371,7 +371,7 @@ rows = [
      "Modelisation 4 modeles, selection XGBoost, dashboard Streamlit",
      "EDA, preparation donnees, analyse des correlations"),
     ("L'IA Pero",
-     "Backend RAG/SBERT, guardrail semantique, cache SQLite MD5, evaluation",
+     "Backend RAG/SBERT, guardrail semantique, cache JSON MD5, evaluation",
      "Referentiel cocktails, scenarios d'usage, tests des seuils"),
 ]
 col_x = [0.52, 3.42, 8.12]
@@ -401,14 +401,14 @@ footer(s, 4)
 s = slide(); bg(s, WHITE)
 header(s, "Projet 1  |  Urban Data Explorer", "Besoin & architecture", P1)
 bullets(s, [
-    ("Besoin metier  ",
-     "explorer le marche du logement parisien en croisant 82 sources Open Data (4 familles) heterogenes."),
-    ("Architecture medaillon  ",
-     "Bronze (brut Parquet) -> Silver (normalise, geocode) -> Gold (datamarts)."),
-    ("Stockage dual  ",
-     "PostgreSQL Gold datamarts (schema applatit oriente requetes), Cassandra query-first pour le streaming."),
-    ("Exposition  ",
-     "API FastAPI securisee -> dashboard React / MapLibre."),
+    ("Besoin  ",
+     "Explorer le marche du logement parisien en croisant 82 sources publiques (prix, transports, logement social, environnement)."),
+    ("Pipeline en 3 etapes  ",
+     "Donnees brutes > nettoyees + geocodees > analyses pret-a-l'emploi (architecture Bronze-Silver-Gold)."),
+    ("Double stockage  ",
+     "PostgreSQL pour les analyses historiques, Cassandra pour les flux en temps reel (Kafka)."),
+    ("Interface  ",
+     "API securisee alimente un tableau de bord cartographique interactif par arrondissement."),
 ], 0.52, 1.45, 5.9, 4.2, size=14, gap=10, bullet_color=EFREI_PINK)
 image_fit(s, SCREENS / "ude-light.png", 6.7, 1.5, 6.15, 4.35, border=True)
 caption(s, "Dashboard Urban Data Explorer  -  choroplethe prix m2", 6.7, 5.9, 6.15)
@@ -561,18 +561,18 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 2  |  Maintenance Predictive", "Donnees & analyse exploratoire", P2)
 badges_row(s, [("C3.1", "Preparation"), ("C3.3", "EDA")], 0.52, 1.3, fill=P2)
 bullets(s, [
-    ("Dataset  ",
-     "Kaggle industrial_machine_maintenance  -  24 042 lignes x 15 variables."),
-    ("Cible  ",
-     "failure_within_24h (classe rare -> desequilibre)."),
+    ("Donnees  ",
+     "24 042 mesures de capteurs industriels (vibrations, temperature, pression, courant) sur Kaggle."),
+    ("Objectif  ",
+     "Predire si une panne surviendra dans les 24h - un evenement rare : 14.8 % des cas seulement."),
     ("Nettoyage  ",
-     "imputation mediane (fit train), winsorisation outliers capteurs."),
-    ("Insight cle  ",
-     "vibration_rms et temperature_motor : variables les plus correlees a la panne."),
-    ("Coherence physique  ",
-     "l'usure mecanique genere vibration ET echauffement simultanement."),
-    ("EDA  ",
-     "6 etapes : distributions, boxplots outliers, heatmap correlations, desequilibre 85.2/14.8 % (20 484 normales / 3 558 pannes), scatter vibration x temperature, tendances temporelles."),
+     "Valeurs aberrantes corrigees, valeurs manquantes remplies par la mediane (sans contaminer les donnees de test)."),
+    ("Decouverte cle  ",
+     "La vibration et la temperature moteur sont les deux signaux les plus revelateurs d'une panne imminente."),
+    ("Explication  ",
+     "L'usure mecanique chauffe ET fait vibrer la machine en meme temps : deux alarmes qui se confirment mutuellement."),
+    ("Analyse  ",
+     "6 etapes : repartition des valeurs, valeurs extremes, correlations, equilibre 85/15 %, tendances dans le temps."),
 ], 0.52, 1.9, 6.12, 4.05, size=14, gap=8, bullet_color=P2)
 image_fit(s, SCREENS / "correlation_matrix.png", 6.88, 1.9, 5.9, 4.55, border=True)
 caption(s, "Matrice de correlation des variables capteurs", 6.88, 6.5, 5.9)
@@ -611,12 +611,12 @@ for ri, row in enumerate(data):
         _set_font(r, 12, clr, bold=(ri == 0 or retained), font=FONT_H if ri == 0 else FONT_B)
     ty += rh
 bullets(s, [
-    ("Selection  ",
-     "score = F1 - 0.5 x sigma(F1 en cross-val) -> performance ET stabilite."),
-    ("Anti-leakage  ",
-     "pipeline sklearn fit sur train uniquement (ADR dedie)."),
-    ("CV 5-fold  ",
-     "XGBoost F1=0.886+/-0.011 stable, selection score = F1 - 0.5xsigma(CV)."),
+    ("Critere de selection  ",
+     "Le meilleur modele est le plus performant ET le plus stable sur de nouvelles donnees (F1 penalise par sa variabilite)."),
+    ("Integrite  ",
+     "Le modele n'a jamais vu les donnees de test pendant l'entrainement (garantit une evaluation honnete)."),
+    ("Validation croisee  ",
+     "XGBoost teste 5 fois sur des jeux differents : F1=0.886 +/- 0.011 -> generalise bien."),
 ], 0.52, 5.22, 12.25, 1.75, size=12.5, gap=6, bullet_color=P2)
 demo_btn(s, LAUNCH_MPI)
 footer(s, 12)
@@ -629,12 +629,12 @@ header(s, "Projet 2  |  Maintenance Predictive", "Dashboard decisionnel", P2)
 badge(s, "C3.2", "Dashboard interactif", 0.52, 1.3, fill=P2)
 demo_btn(s, LAUNCH_MPI)
 bullets(s, [
-    ("Cible  ",      "responsable maintenance, pas le data scientist."),
-    ("Simulation  ", "sliders capteurs -> prediction temps reel + probabilite."),
-    ("Explication  ","top variables influentes en langage metier."),
-    ("Distinct  ",   "des visuels EDA du rapport (consigne du sujet)."),
+    ("Concu pour  ",  "le responsable maintenance, pas l'expert en IA : interface simple, lisible, actionnable."),
+    ("Simulation  ", "Bougez les curseurs (vibration, temperature...) : la prediction se met a jour en temps reel."),
+    ("Explication  ","Quelles mesures ont declanche l'alerte ? Affiche en langage metier, sans jargon technique."),
+    ("Distinct  ",   "Outil d'aide a la decision separe des graphiques d'analyse du rapport."),
 ], 0.52, 1.92, 5.9, 3.22, size=13.5, gap=9, bullet_color=P2)
-textbox(s, "Scenario : vibration haute + temperature haute -> risque eleve -> feature importance.",
+textbox(s, "Demo : vibration elevee + moteur chaud -> alerte rouge -> l'IA explique pourquoi.",
         0.52, 5.28, 6.0, 0.78, size=12, color=TEXT_MUTED, italic=True)
 image_fit(s, SCREENS / "maintenance-dashboard-live.png", 6.88, 1.9, 5.9, 4.05, border=True)
 button(s, "Ouvrir le repo ->", REPOS["maint"], 6.88, 6.15, w=5.9, h=0.5, fill=P2)
@@ -676,14 +676,14 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 3  |  L'IA Pero", "Cas d'usage & architecture GenAI", P3)
 badge(s, "C5.1", "Cas d'usage GenAI", 0.52, 1.3, fill=EFREI_NAVY)
 bullets(s, [
-    ("Besoin  ",              "recommander un cocktail depuis une envie en langage naturel."),
-    ("Pourquoi GenAI  ",      "les filtres echouent sur « frais, fruite, touche tropicale »."),
-    ("Comprendre + produire  ","semantique (retrieval) ET generation (recette personnalisee)."),
-    ("Conformite  ",          "thematique alternative validee par l'Annexe I du sujet."),
+    ("Besoin  ",              "Trouver un cocktail depuis une envie exprimee en mots naturels : « quelque chose de frais »."),
+    ("Pourquoi l'IA  ",       "Une recherche par mots-cles echoue sur « fruite et tropical » : l'IA comprend l'intention."),
+    ("Deux etapes  ",         "Comprendre la requete (recherche semantique) PUIS creer une recette sur mesure (generation)."),
+    ("Cadre  ",               "Thematique alternative validee par l'EFREI (Annexe I du sujet), couvre C5.1-C5.3."),
 ], 0.52, 1.9, 6.12, 3.22, size=14, gap=9, bullet_color=EFREI_PINK)
 textbox(s, "Pipeline", 0.52, 5.2, 6, 0.32,
         size=14, color=P3, bold=True, font=FONT_H)
-textbox(s, "Requete -> guardrail SBERT cosinus 0.40 (calibre 30 requetes) -> cache JSON MD5 -> retrieval SBERT + generation GPT-2",
+textbox(s, "Votre requete est verifee (hors-sujet = refus poli) > consultee en cache si connue > sinon : recherche + generation",
         0.52, 5.52, 6.2, 0.78, size=13, color=TEXT_DARK, italic=True)
 image_fit(s, SCREENS / "iapero-speakeasy-live.png", 6.88, 1.9, 5.9, 4.38, border=True)
 caption(s, "Interface Speakeasy de L'IA Pero", 6.88, 6.32, 5.9)
@@ -698,17 +698,17 @@ header(s, "Projet 3  |  L'IA Pero", "Solution & demonstration", P3)
 badge(s, "C5.2", "Solution GenAI", 0.52, 1.3, fill=EFREI_NAVY)
 demo_btn(s, LAUNCH_IAPERO)
 bullets(s, [
-    ("SBERT all-MiniLM-L6-v2  ",
-     "local, 80 MB, 384 dims. Choix vs TF-IDF : capture la semantique (« frais et fruite » trouve rhum-agrumes, TF-IDF echoue). CPU-only, adapte au domaine clos 600 cocktails."),
-    ("GPT-2 fine-tune  ",
-     "generation locale, 117M params, 3 epochs sur corpus cocktails. Fallback template si modele absent. Bornee par contexte RAG retrieved."),
-    ("Cache JSON MD5  ",
-     "1 generation par requete unique. Latence cache hit < 100 ms vs ~3 s premiere generation GPT-2."),
-    ("Guardrail SBERT cosinus  ",
-     "Seuil 0.40 calibre sur 30 requetes labelisees. Refusal rate 100 % apres calibration (vs 86.7 % avant)."),
+    ("Comprehension semantique  ",
+     "Le moteur comprend le sens, pas les mots exacts (« frais et fruite » = rhum-agrumes). Fonctionne 100 % en local, sans internet."),
+    ("Generateur de recettes  ",
+     "IA specialisee sur cocktails cree une recette sur mesure. Repli sur un modele de secours si l'IA principale est absente."),
+    ("Memoire intelligente  ",
+     "Les requetes deja posees sont mises en cache : reponse instantanee (< 100 ms) au lieu de ~3 secondes."),
+    ("Filtre anti-detournement  ",
+     "Calibre sur 30 tests : 100 % des requetes hors-sujet (« repare mon velo ») sont refusees poliment."),
 ], 0.52, 1.92, 6.02, 3.3, size=13.5, gap=8, bullet_color=EFREI_PINK)
-textbox(s, "Scenario : « quelque chose de frais et fruite » -> Top-5 SBERT + radar ; "
-           "« repare mon velo » -> refus (score < 0.40, out_of_domain_filtered).",
+textbox(s, "Demo : « quelque chose de frais et fruite » -> 5 cocktails + radar de saveurs ; "
+           "« repare mon velo » -> refus poli (hors sujet cocktails).",
         0.52, 5.3, 6.12, 0.88, size=12, color=TEXT_MUTED, italic=True)
 image_fit(s, SCREENS / "iapero-recommendation-full.png", 6.88, 1.9, 5.9, 4.05, border=True)
 button(s, "Ouvrir le repo ->", REPOS["iapero"], 6.88, 6.15, w=5.9, h=0.5, fill=P3)
@@ -721,21 +721,21 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 3  |  L'IA Pero", "Evaluation & risques", P3)
 badge(s, "C5.3", "Evaluation qualite", 0.52, 1.3, fill=EFREI_NAVY)
 bullets(s, [
-    ("Refusal rate 100 %  ",
-     "15/15 requetes hors-domaine rejetees apres calibration du guardrail. Avant : 86.7% (13/15). Delta +13.3%."),
-    ("hit@5 = 91.3 %  ",
-     "21/23 requetes in-domain avec au moins 1 resultat pertinent dans le Top-5 (SBERT cosinus sur 1280 cocktails)."),
-    ("Retrieval P@1=90 %  ",
-     "NDCG@3,5,10 = 0.963. Evalue sur 23 requetes in-domain + 15 OOD = 38 requetes labelisees au total."),
+    ("Filtre hors-sujet : 100 %  ",
+     "Apres calibration : 15/15 requetes inappropriees refusees (vs 13/15 avant). Zero fuite hors-sujet."),
+    ("Pertinence : hit@5 = 91.3 %  ",
+     "21 requetes sur 23 ont trouve au moins 1 cocktail pertinent dans les 5 premiers resultats proposes."),
+    ("Precision : P@1 = 90 %  ",
+     "Le premier cocktail propose est pertinent 9 fois sur 10. Evalue sur 38 requetes labelisees."),
     ("Pistes d'amelioration  ",
-     "FAISS persistant pour scale 100k+, fine-tuning SBERT domaine cocktails, LaBSE pour queries FR/EN/ES."),
+     "Indexation vectorielle (FAISS) pour 100k+ cocktails, support FR/EN/ES, fine-tuning domaine cocktails."),
 ], 0.52, 1.9, 6.12, 3.22, size=14, gap=9, bullet_color=EFREI_PINK)
 rect(s, 0.52, 5.18, 6.12, 1.55,
      fill=RGBColor(0xFF, 0xF0, 0xF8), line=EFREI_PINK)
 textbox(s, "Risques", 0.76, 5.3, 5, 0.32,
         size=13.5, color=EFREI_PINK, bold=True, font=FONT_H)
-textbox(s, "Hallucination (mitigee RAG+cache)  |  requetes FR : -15% perf vs EN  |  "
-           "biais dataset anglophone  |  usage responsable de l'alcool.",
+textbox(s, "Inventions de l'IA mitigees par le cache et la recherche  |  en francais : -15 % precision vs anglais  |  "
+           "dataset majoritairement anglophone  |  usage responsable de l'alcool.",
         0.76, 5.65, 5.7, 0.98, size=12, color=TEXT_DARK, line_spacing=1.12)
 image_fit(s, SCREENS / "iapero-similarity-live.png", 6.88, 1.9, 5.9, 4.52, border=True)
 caption(s, "Scores de similarite + decision du guardrail", 6.88, 6.48, 5.9)
@@ -755,7 +755,7 @@ comps = [
     ("C3.1","Prep fit-train"),      ("C3.2","Dashboard Streamlit"),
     ("C3.3","EDA correlations"),    ("C4.1","Strategie predictive"),
     ("C4.2","4 modeles testes"),    ("C4.3","XGBoost F1=0.886 ROC=0.995"),
-    ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG Gemini"),
+    ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG GPT-2"),
     ("C5.3","Guardrail 0.40 hit@5=91.3%"),
 ]
 cols = 4; cw_c = 3.05; chh = 0.92; gx = 0.12; gy = 0.14
