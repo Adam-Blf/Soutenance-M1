@@ -271,6 +271,9 @@ textbox(s, "Adam Beloucif  &  Emilien Morice",
 textbox(s, "EFREI Villejuif  |  Session 2025-2026",
         0.55, 4.82, 12.0, 0.38, size=13,
         color=RGBColor(0x6B, 0xA3, 0xD8))
+textbox(s, "Jury 5  |  Salle K006  |  2 juillet 2026  |  9h - 10h",
+        0.55, 5.28, 12.0, 0.38, size=13.5,
+        color=EFREI_PINK, bold=True, font=FONT_H)
 
 # ============================================================
 # SLIDE 2 - Contexte
@@ -318,7 +321,7 @@ cards = [
      "XGBoost retenu F1=0.886 ROC-AUC=0.995, dashboard decisionnel Streamlit.",
      "maint", P2),
     ("L'IA Pero", "Bloc 2  |  C5.1 - C5.3",
-     "Recommandation de cocktails par IA semantique. 447 cocktails, SBERT all-MiniLM-L6-v2 384 dims, "
+     "Recommandation de cocktails par IA semantique. 1280 cocktails (4 sources fusionnees), SBERT all-MiniLM-L6-v2 384 dims, "
      "guardrail cosinus 0.40 (calibre 30 requetes), RAG + GPT-2 fine-tune, cache JSON MD5.",
      "iapero", P3),
 ]
@@ -352,7 +355,7 @@ rows = [
      "Modelisation 4 modeles, selection XGBoost, dashboard Streamlit",
      "EDA, preparation donnees, analyse des correlations"),
     ("L'IA Pero",
-     "Backend RAG/SBERT, guardrail semantique, cache JSON MD5, evaluation",
+     "Backend RAG/SBERT, guardrail semantique, cache SQLite MD5, evaluation",
      "Referentiel cocktails, scenarios d'usage, tests des seuils"),
 ]
 col_x = [0.52, 3.42, 8.12]
@@ -552,7 +555,7 @@ bullets(s, [
     ("Coherence physique  ",
      "l'usure mecanique genere vibration ET echauffement simultanement."),
     ("EDA  ",
-     "6 etapes : distributions, boxplots outliers, heatmap correlations, desequilibre 88/12 %, scatter vibration x temperature, tendances temporelles."),
+     "6 etapes : distributions, boxplots outliers, heatmap correlations, desequilibre 85.2/14.8 % (20 484 normales / 3 558 pannes), scatter vibration x temperature, tendances temporelles."),
 ], 0.52, 1.9, 6.12, 4.05, size=14, gap=8, bullet_color=P2)
 image_fit(s, SCREENS / "correlation_matrix.png", 6.88, 1.9, 5.9, 4.55, border=True)
 caption(s, "Matrice de correlation des variables capteurs", 6.88, 6.5, 5.9)
@@ -662,7 +665,7 @@ bullets(s, [
 ], 0.52, 1.9, 6.12, 3.22, size=14, gap=9, bullet_color=EFREI_PINK)
 textbox(s, "Pipeline", 0.52, 5.2, 6, 0.32,
         size=14, color=P3, bold=True, font=FONT_H)
-textbox(s, "Requete -> SBERT all-MiniLM-L6-v2 -> cosinus -> guardrail 0.40 -> cache JSON MD5 -> GPT-2 fine-tune (RAG)",
+textbox(s, "Requete -> guardrail SBERT cosinus 0.40 (calibre 30 requetes) -> cache JSON MD5 -> retrieval SBERT + generation GPT-2",
         0.52, 5.52, 6.2, 0.78, size=13, color=TEXT_DARK, italic=True)
 image_fit(s, SCREENS / "iapero-speakeasy-live.png", 6.88, 1.9, 5.9, 4.38, border=True)
 caption(s, "Interface Speakeasy de L'IA Pero", 6.88, 6.32, 5.9)
@@ -679,16 +682,16 @@ sp_d3 = rect(s, 9.52, 1.26, 3.28, 0.48, fill=EFREI_PINK,
 shape_text(sp_d3, "DEMO LIVE  -  90 s", size=12.5, color=WHITE)
 bullets(s, [
     ("SBERT all-MiniLM-L6-v2  ",
-     "local, 80 MB, 384 dims, L2-normalise. P@5=0.79 vs TF-IDF 0.41 (+93%). CPU-only, adapte au domaine clos."),
+     "local, 80 MB, 384 dims. Choix vs TF-IDF : capture la semantique (« frais et fruite » trouve rhum-agrumes, TF-IDF echoue). CPU-only, adapte au domaine clos 600 cocktails."),
     ("GPT-2 fine-tune  ",
-     "117M params, 3 epochs, LR=5e-5 sur 447 recettes. BLEU-4=0.42, ROUGE-L=0.58. Generation bornee par le contexte RAG."),
+     "generation locale, 117M params, 3 epochs sur corpus cocktails. Fallback template si modele absent. Bornee par contexte RAG retrieved."),
     ("Cache JSON MD5  ",
-     "1 calcul par requete unique. Latence cache hit < 10 ms vs 2.1 s premier appel."),
-    ("Guardrail  ",
-     "seuil 0.40 (calibre sur 30 requetes labelisees). F1=0.92, Precision=0.95, Recall=0.90."),
+     "1 generation par requete unique. Latence cache hit < 100 ms vs ~3 s premiere generation GPT-2."),
+    ("Guardrail SBERT cosinus  ",
+     "Seuil 0.40 calibre sur 30 requetes labelisees. Refusal rate 100 % apres calibration (vs 86.7 % avant)."),
 ], 0.52, 1.92, 6.02, 3.3, size=13.5, gap=8, bullet_color=EFREI_PINK)
-textbox(s, "Scenario : « quelque chose de frais et fruite » -> Top-5 + radar ; "
-           "« repare mon velo » -> refus (score 0.23 < 0.40).",
+textbox(s, "Scenario : « quelque chose de frais et fruite » -> Top-5 SBERT + radar ; "
+           "« repare mon velo » -> refus (score < 0.40, out_of_domain_filtered).",
         0.52, 5.3, 6.12, 0.88, size=12, color=TEXT_MUTED, italic=True)
 image_fit(s, SCREENS / "iapero-recommendation-full.png", 6.88, 1.9, 5.9, 4.05, border=True)
 button(s, "Ouvrir le repo ->", REPOS["iapero"], 6.88, 6.15, w=5.9, h=0.5, fill=P3)
@@ -701,14 +704,14 @@ s = slide(); bg(s, WHITE)
 header(s, "Projet 3  |  L'IA Pero", "Evaluation & risques", P3)
 badge(s, "C5.3", "Evaluation qualite", 0.52, 1.3, fill=EFREI_NAVY)
 bullets(s, [
-    ("Guardrail F1=0.92  ",
-     "seuil 0.40, Precision=0.95, Recall=0.90. 94% des requetes hors-domaine rejetees (30 cas testes)."),
-    ("Retrieval P@5=0.79  ",
-     "NDCG@5=0.81. Gain +93% vs TF-IDF baseline (0.41). Latence : 45 ms retrieval, < 10 ms cache hit."),
-    ("Generation BLEU-4=0.42  ",
-     "ROUGE-L=0.58. Coherent avec la litterature recettes (0.35-0.55 typique). 62 tests pytest."),
+    ("Refusal rate 100 %  ",
+     "15/15 requetes hors-domaine rejetees apres calibration du guardrail. Avant : 86.7% (13/15). Delta +13.3%."),
+    ("hit@5 = 91.3 %  ",
+     "21/23 requetes in-domain avec au moins 1 resultat pertinent dans le Top-5 (SBERT cosinus sur 1280 cocktails)."),
+    ("Retrieval P@1=90 %  ",
+     "NDCG@3,5,10 = 0.963. Evalue sur 23 requetes in-domain + 15 OOD = 38 requetes labelisees au total."),
     ("Pistes d'amelioration  ",
-     "FAISS persistant pour scale 100k+, fine-tuning SBERT domaine, LaBSE/XLM-R pour FR/EN/ES natif."),
+     "FAISS persistant pour scale 100k+, fine-tuning SBERT domaine cocktails, LaBSE pour queries FR/EN/ES."),
 ], 0.52, 1.9, 6.12, 3.22, size=14, gap=9, bullet_color=EFREI_PINK)
 rect(s, 0.52, 5.18, 6.12, 1.55,
      fill=RGBColor(0xFF, 0xF0, 0xF8), line=EFREI_PINK)
@@ -733,9 +736,9 @@ comps = [
     ("C2.3","Polars multi-sources"),("C2.4","Metriques pipeline"),
     ("C3.1","Prep fit-train"),      ("C3.2","Dashboard Streamlit"),
     ("C3.3","EDA correlations"),    ("C4.1","Strategie predictive"),
-    ("C4.2","4 modeles testes"),    ("C4.3","Eval XGBoost F1=0.886"),
-    ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG GPT-2"),
-    ("C5.3","Guardrail 0.40 F1=0.92"),
+    ("C4.2","4 modeles testes"),    ("C4.3","XGBoost F1=0.886 ROC=0.995"),
+    ("C5.1","Cas d'usage NL"),      ("C5.2","SBERT + RAG Gemini"),
+    ("C5.3","Guardrail 0.40 hit@5=91.3%"),
 ]
 cols = 4; cw_c = 3.05; chh = 0.92; gx = 0.12; gy = 0.14
 x0, y0 = 0.52, 1.48
