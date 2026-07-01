@@ -412,8 +412,7 @@ bullets(s, [
 ], 0.52, 1.45, 5.9, 4.2, size=14, gap=10, bullet_color=EFREI_PINK)
 image_fit(s, SCREENS / "ude-light.png", 6.7, 1.5, 6.15, 4.35, border=True)
 caption(s, "Dashboard Urban Data Explorer  -  choroplethe prix m2", 6.7, 5.9, 6.15)
-button(s, "Demo live ->", DEMO_URBAN, 0.52, 6.4, w=2.4, h=0.5, fill=P1)
-button(s, "Repo ->", REPOS["urban"], 3.1, 6.4, w=2.0, h=0.5, fill=EFREI_DARK)
+button(s, "Repo ->", REPOS["urban"], 0.52, 6.4, w=2.0, h=0.5, fill=EFREI_DARK)
 demo_btn(s, LAUNCH_UDE)
 footer(s, 5)
 
@@ -497,7 +496,6 @@ textbox(s, "Dashboard -> clic 11e arr. -> comparaison 11e/16e -> /docs -> "
         0.52, 5.96, 6.2, 0.78, size=12, color=TEXT_DARK, italic=True)
 image_fit(s, SCREENS / "ude-api.png", 6.88, 1.9, 5.9, 4.05, border=True)
 button(s, "Repo ->", REPOS["urban"], 6.88, 6.18, w=2.55, h=0.5, fill=P1)
-button(s, "Demo live ->", DEMO_URBAN, 9.62, 6.18, w=2.45, h=0.5, fill=EFREI_DARK)
 footer(s, 8)
 
 # ============================================================
